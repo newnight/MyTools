@@ -20,6 +20,7 @@ class ToolsCommand(sublime_plugin.WindowCommand):
 
     def set_path(self,target,is_folder):
         self.__first_path=self.get_path(is_folder)
+        self.set_source()
         self.__sec_path=self.__first_path.replace(self._source,target)
 
     def runCmd(self,target,is_folder):
