@@ -13,7 +13,7 @@ class ToolsCommand(sublime_plugin.WindowCommand):
 
     def get_path(self,is_folder=False):
         path = self.window.active_view().file_name()
-        if is_folder:
+        if is_folder and path:
             path=os.path.dirname(path)
 
         return path
@@ -30,18 +30,18 @@ class ToolsCommand(sublime_plugin.WindowCommand):
 
     def set_source(self):
         path = self.get_path()
-        if 'rc' in path:
+        if path and 'rc' in path:
             self._source='rc'
-        elif 'dev' in path:
+        elif path and 'dev' in path:
             self._source='dev'
-        elif 'dev2' in path:
+        elif path and 'dev2' in path:
             self._source='dev2'
-        elif 'local_view' in path:
+        elif path and 'local_view' in path:
             self._source='local_view'
 
     def is_visible(self,target=''):
         self.set_source()
-        return self.__cmd!='' and self._source!=''
+        return self.__cmd!='' and self._source!='' and self.get_path()
 
 class BcompareWithCommand(ToolsCommand):
     def run(self,target):
