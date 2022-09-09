@@ -1,13 +1,9 @@
 # coding=utf8
- 
 import sublime,sublime_plugin,os,json
 
-MTOOLS_PKGNAME = "mTools"
-
+MTOOLS_PKGNAME = "MyTools"
 USER_SETTING_FILE = MTOOLS_PKGNAME+".sublime-settings"
-DEFAULT_SIDE_BAR_RESOURCE = "Packages/"+MTOOLS_PKGNAME+"/menus/Default Side Bar.sublime-menu"
 DEFAULT_SETTING_RESOURCE = "Packages/"+MTOOLS_PKGNAME+"/"+USER_SETTING_FILE
-USER_SIDE_BAR_FILE = "Side Bar.sublime-menu"
 USER_CONTEXT_FILE = "Context.sublime-menu"
 
 def create_menu_children():
@@ -20,29 +16,22 @@ def create_menu_children():
         children.insert(length,caption)
     return children
 
-def create_user_side_bar():
-    """Create the sidebar config in the user directory"""
-    user_folder = os.path.join(sublime.packages_path(), 'User', MTOOLS_PKGNAME)
-    user_file = os.path.join(user_folder, USER_SIDE_BAR_FILE)
-    if os.path.exists(user_file):
-        return
-    if not os.path.exists(user_folder):
-        os.makedirs(user_folder)
-    side_bar_contents = sublime.load_resource(DEFAULT_SIDE_BAR_RESOURCE)
-    with open(user_file, 'w', encoding='utf8') as f:
-        f.write(side_bar_contents)
-
 def create_user_setting():
-    """Create the sidebar config in the user directory"""
     user_folder = os.path.join(sublime.packages_path(), 'User')
     user_file = os.path.join(user_folder, USER_SETTING_FILE)
     if os.path.exists(user_file):
         return
     if not os.path.exists(user_folder):
         os.makedirs(user_folder)
-    side_settings_contents = sublime.load_resource(DEFAULT_SETTING_RESOURCE)
+    user_settings_contents = sublime.load_resource(DEFAULT_SETTING_RESOURCE)
     with open(user_file, 'w', encoding='utf8') as f:
-        f.write(side_settings_contents)
+        f.write(user_settings_contents)
+
+
+def get_default_cmd(type='path'):
+    cmd= s.get('defaultDiffTool','bcompare')
+    return s.get('diffTools').get(cmd).get(type)
+
 
 def create_user_menu(overwrite=False):
     global s
@@ -55,7 +44,7 @@ def create_user_menu(overwrite=False):
         os.makedirs(user_folder)
     menu = [{ "caption": "-" },{ "caption": "-" }]
     diffName = get_default_cmd('icon')+"DiffWith"
-    caption = { "caption":  diffName,"children":"","id":"MyTools"}
+    caption = { "caption":  diffName,"children":""}
     caption['children']=create_menu_children()
     menu.insert(1,caption)
     menu_contents = json.dumps(menu, sort_keys=True, indent=4, separators=(',', ': '))
@@ -69,20 +58,16 @@ class Pref:
 
 
 def plugin_loaded():
-    """Handles the plugin loaded event"""
     global Pref, s
     s = sublime.load_settings(MTOOLS_PKGNAME+".sublime-settings")
+    dir(s)
     Pref = Pref()
     Pref.load()
-    # create_user_side_bar()
     create_user_menu()
     create_user_setting()
     s.clear_on_change("reload")
     s.add_on_change("reload", lambda: Pref.load())
 
-def get_default_cmd(type='path'):
-    cmd= s.get('defaultDiffTool','bcompare')
-    return s.get('diffTools').get(cmd).get(type)
 
 
 class ToolsCommand(sublime_plugin.WindowCommand):
@@ -107,6 +92,7 @@ class ToolsCommand(sublime_plugin.WindowCommand):
             if path and (source in path):
                 self._source=source
 
+
     def get_path(self,is_folder=False):
         path = self.window.active_view().file_name()
         if is_folder and path:
@@ -126,6 +112,7 @@ class ToolsCommand(sublime_plugin.WindowCommand):
     def is_visible(self,target=''):
         self.set_source()
         return self.__cmd!='' and self._source!='' and self.get_path()
+
 
 class DifftoolWithCommand(ToolsCommand):
     def run(self,target):

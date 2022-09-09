@@ -1,0 +1,24 @@
+{
+    "level":"folder",//folder or file
+    "defaultDiffTool":"bcompare",// default bcompare
+    "diffTools":{
+        "bcompare":{
+           "path":"/usr/local/bin/bcompare",
+           "icon":"⚙️",//emoji
+        },
+        "kaleidoscope":{
+           "path":"/usr/local/bin/ksdiff",
+           "icon":"⚙️",//emoji
+        },
+    },
+    "diffList":[
+        {
+            "name":"dev",
+            "path":"~/dev/"
+        },
+        {
+            "name":"rc",
+            "path":"~/rc/"
+        },
+    ]
+}
